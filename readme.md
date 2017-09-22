@@ -138,3 +138,11 @@ Or use reads generated from shapeless LabelledGeneric :
             ((__ \ 'theVillage) to (__ \ 'village))
         ) andThen hReads[Viking]
 ```
+
+
+# Release 
+
+``` 
+sbt 
+> + publish 
+```
