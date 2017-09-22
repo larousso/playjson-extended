@@ -1,5 +1,47 @@
 package playjson
 
+object transformation {
+
+  import play.api.libs.functional._
+  import play.api.libs.functional.syntax._
+  import play.api.libs.json.Reads._
+  import play.api.libs.json._
+
+  case class Transformation(from: JsPath, to: JsPath) {
+    def reads =
+      __.json.update(to.json.copyFrom(from.json.pick))
+
+    def and(transformation: Transformation): Transformations = Transformations(Seq(this, transformation))
+  }
+
+  case class Transformations(transformations: Seq[Transformation]) {
+
+    def and(transformation: Transformation): Transformations = this.copy(
+      transformations = transformation +: transformations
+    )
+
+    def reads: Reads[JsObject] = {
+      val reduce = transformations.map(_.reads).reduceLeft(combine)
+      __.json.update(reduce)
+    }
+
+    private def combine(r1: Reads[JsObject], r2: Reads[JsObject]): Reads[JsObject] = {
+      val b: FunctionalBuilder[Reads]#CanBuild2[JsObject, JsObject] = r1 and r2
+      b.reduce
+    }
+  }
+
+  implicit class TransformationOps(from: JsPath) {
+    def to(t: JsPath): Transformation =
+      Transformation(from, t)
+  }
+
+  def transform(transformations: Transformations): Reads[JsObject] = transformations.reads
+  def transform(transformation: Transformation): Reads[JsObject] = Transformations(Seq(transformation)).reads
+
+}
+
+
 object rules {
 
   import play.api.libs.functional.syntax._
@@ -10,6 +52,14 @@ object rules {
   import shapeless.{::, HList, HNil, LabelledGeneric, Lazy, Witness}
 
   import scala.annotation.implicitNotFound
+
+  implicit class HListBuilder[Repr <: HList](l: Repr) {
+    def and[V](value: V): V :: Repr = value :: l
+  }
+
+  implicit class HListBuilder2[R](l: R) {
+    def and[V](value: V): V :: R :: HNil = value :: l :: HNil
+  }
 
   @implicitNotFound("Implicit not found: Rules type or fields are not valid")
   trait RuleValidation[Repr <: HList, Rules <: HList]
@@ -75,11 +125,11 @@ object rules {
       }
 
     implicit def readRuleForHead[K <: Symbol, H, T <: HList, R <: HList](
-                                                                          implicit witness: Witness.Aux[K],
-                                                                          readsH: Reads[H],
-                                                                          at: Selector.Aux[R, K, Rule[H]],
-                                                                          readsT: ReadsWithRules[T, R]
-                                                                        ): ReadsWithRules[FieldType[K, H] :: T, R] =
+      implicit witness: Witness.Aux[K],
+      readsH: Reads[H],
+      at: Selector.Aux[R, K, Rule[H]],
+      readsT: ReadsWithRules[T, R]
+    ): ReadsWithRules[FieldType[K, H] :: T, R] =
       new ReadsWithRules[FieldType[K, H] :: T, R] {
         override def withRules(rules: R): Reads[FieldType[K, H] :: T] = {
           val name                    = witness.value.name
@@ -116,6 +166,38 @@ object rules {
 
   def read[T](implicit reads: Reads[T]): Rule[T] = ReadRule(reads)
 
-  def orElse[T](or: Reads[T])(implicit reads: Reads[T]): Rule[T] = OrElseRule(or)
+  def orElse[T](or: Reads[T]): Rule[T] = OrElseRule(or)
+
+}
+
+object reads {
+  import play.api.libs.functional.syntax._
+  import play.api.libs.json._
+  import shapeless.labelled._
+  import shapeless.syntax.singleton._
+  import shapeless.{::, HList, HNil, LabelledGeneric, Lazy, Witness}
+
+  implicit val readsHNil: Reads[HNil] = Reads { json =>
+    JsSuccess(HNil)
+  }
+
+  implicit def readHCons[K <: Symbol, H, T <: HList](
+    implicit
+    witness: Witness.Aux[K],
+    readsH: Reads[H],
+    readsT: Reads[T]
+  ): Reads[FieldType[K, H] :: T] = {
+    val name = witness.value.name
+    val readHead = (__ \ name).read[H](readsH)
+    (readHead and readsT)( (a, b) => (name ->> a :: b).asInstanceOf[FieldType[K, H] :: T])
+  }
+
+  implicit def readsGeneric[Repr, A](implicit
+                                     gen: LabelledGeneric.Aux[A, Repr],
+                                     readsRepr: Lazy[Reads[Repr]]): Reads[A] =
+    Reads(json => readsRepr.value.reads(json).map(gen.from))
+
+
+  def hReads[A](implicit readsInst: Reads[A]): Reads[A] = readsInst
 
 }
