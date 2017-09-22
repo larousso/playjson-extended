@@ -146,7 +146,7 @@ object rules {
 
   case class JsonRead[A]() {
 
-    def readsWithRules[R <: HList, ARepr <: HList](rules: R)(
+    def withRules[R <: HList, ARepr <: HList](rules: R)(
       implicit readWithRule: ReadsWithRules[A, R],
       genA: LabelledGeneric.Aux[A, ARepr],
       validation: RuleValidation[ARepr, R]
@@ -154,7 +154,7 @@ object rules {
       readWithRule.withRules(rules)
 
 
-    def readsWithRules[R, ARepr <: HList](rules: R)(
+    def withRules[R, ARepr <: HList](rules: R)(
       implicit readWithRule: ReadsWithRules[A, R :: HNil],
       genA: LabelledGeneric.Aux[A, ARepr],
       validation: RuleValidation[ARepr, R :: HNil]

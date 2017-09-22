@@ -23,7 +23,7 @@ class RulesSpec extends WordSpec with MustMatchers with OptionValues {
       import syntax.singleton._
       import playjson.rules._
 
-      val monMojoReads: Reads[Viking] = jsonRead[Viking].readsWithRules(
+      val monMojoReads: Reads[Viking] = jsonRead[Viking].withRules(
         'weight ->> read(min(0) keepAnd max(150))
       )
 
@@ -49,7 +49,7 @@ class RulesSpec extends WordSpec with MustMatchers with OptionValues {
       import syntax.singleton._
       import playjson.rules._
 
-      val monMojoReads: Reads[Viking] = jsonRead[Viking].readsWithRules(
+      val monMojoReads: Reads[Viking] = jsonRead[Viking].withRules(
           'weight ->> read(min(0) keepAnd max(150)) and
           'name ->> read(pattern(".*".r)) and
           'surname ->> read(pattern(".*".r))
@@ -82,7 +82,7 @@ class RulesSpec extends WordSpec with MustMatchers with OptionValues {
             ((__ \ 'theName) to (__ \ 'name)) and
             ((__ \ 'theSurname) to (__ \ 'surname)) and
             ((__ \ 'theVillage) to (__ \ 'village))
-        ) andThen jsonRead[Viking].readsWithRules(
+        ) andThen jsonRead[Viking].withRules(
           'weight ->> read(min(0) keepAnd max(150)) and
           'name ->> read(pattern(".*".r)) and
           'surname ->> read(pattern(".*".r))

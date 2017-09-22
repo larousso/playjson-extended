@@ -62,8 +62,8 @@ With play json you can write this :
     
     case class Viking(name: String, surname: String, weight: Int, village: Seq[Village])
     
-    implicit val reads: Reads[Viking] = jsonRead[Viking].readsWithRules(
-    'weight ->> read(min(0) keepAnd max(150))
+    implicit val reads: Reads[Viking] = jsonRead[Viking].withRules(
+      'weight ->> read(min(0) keepAnd max(150))
     )
 ```
   
@@ -120,7 +120,7 @@ You can combine both rules and transformations
             ((__ \ 'theName) to (__ \ 'name)) and
             ((__ \ 'theSurname) to (__ \ 'surname)) and
             ((__ \ 'theVillage) to (__ \ 'village))
-        ) andThen jsonRead[Viking].readsWithRules(
+        ) andThen jsonRead[Viking].withRules(
           'weight ->> read(min(0) keepAnd max(150)) and
           'name ->> read(pattern(".*".r)) and
           'surname ->> read(pattern(".*".r))
