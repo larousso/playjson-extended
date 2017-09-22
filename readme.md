@@ -1,5 +1,14 @@
 # Play extension 
 
+## Usage 
+
+
+```scala 
+resolvers += "playjson-repo" at "https://raw.githubusercontent.com/larousso/playjson-extended/master/repository/releases/"
+
+libraryDependencies += "com.adelegue" %% "playjson-extended" % "0.0.1"
+
+``` 
 
 ## Rules 
 
