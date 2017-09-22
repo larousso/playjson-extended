@@ -7,7 +7,6 @@ case class Village(name: String)
 
 object Village {
   implicit val reads = Json.reads[Village]
-
 }
 
 case class Viking(name: String, surname: String, weight: Int, village: Seq[Village])
@@ -78,7 +77,7 @@ class RulesSpec extends WordSpec with MustMatchers with OptionValues {
       import playjson.rules._
       import playjson.transformation._
 
-      val monMojoReads: Reads[Viking] =
+      val reads: Reads[Viking] =
         transform(
             ((__ \ 'theName) to (__ \ 'name)) and
             ((__ \ 'theSurname) to (__ \ 'surname)) and
@@ -89,7 +88,7 @@ class RulesSpec extends WordSpec with MustMatchers with OptionValues {
           'surname ->> read(pattern(".*".r))
         )
 
-      val jsResult: JsResult[Viking] = monMojoReads.reads(Json.obj(
+      val jsResult: JsResult[Viking] = reads.reads(Json.obj(
         "theName" -> "Ragnar",
         "theSurname" -> "Lothbrok",
         "theVillage" -> Seq(Json.obj("name" -> "Kattegat")),
