@@ -53,11 +53,11 @@ object rules {
 
   import scala.annotation.implicitNotFound
 
-  implicit class HListBuilder[Repr <: HList](l: Repr) {
+  implicit class HListOps[Repr <: HList](l: Repr) {
     def and[V](value: V): V :: Repr = value :: l
   }
 
-  implicit class HListBuilder2[R](l: R) {
+  implicit class GenericOps[R](l: R) {
     def and[V](value: V): V :: R :: HNil = value :: l :: HNil
   }
 
@@ -70,14 +70,14 @@ object rules {
       new RuleValidation[Repr, HNil] {}
 
     implicit def validateSingleton[Repr <: HList, K <: Symbol, V](
-                                                                   implicit sel: Selector.Aux[Repr, K, V]
-                                                                 ): RuleValidation[Repr, FieldType[K, Rule[V]] :: HNil] =
+      implicit sel: Selector.Aux[Repr, K, V]
+    ): RuleValidation[Repr, FieldType[K, Rule[V]] :: HNil] =
       new RuleValidation[Repr, FieldType[K, Rule[V]] :: HNil] {}
 
     implicit def validateHCons[Repr <: HList, H, R <: HList, K <: Symbol, V](
-                                                                              implicit sel: Selector.Aux[Repr, K, V],
-                                                                              validation: RuleValidation[Repr, R]
-                                                                            ): RuleValidation[Repr, FieldType[K, Rule[V]] :: R] =
+      implicit sel: Selector.Aux[Repr, K, V],
+      validation: RuleValidation[Repr, R]
+    ): RuleValidation[Repr, FieldType[K, Rule[V]] :: R] =
       new RuleValidation[Repr, FieldType[K, Rule[V]] :: R] {}
   }
 
@@ -167,6 +167,7 @@ object rules {
   def read[T](implicit reads: Reads[T]): Rule[T] = ReadRule(reads)
 
   def orElse[T](or: Reads[T]): Rule[T] = OrElseRule(or)
+  def orElse[T](or: T): Rule[T] = OrElseRule(Reads.pure(or))
 
 }
 
@@ -177,27 +178,48 @@ object reads {
   import shapeless.syntax.singleton._
   import shapeless.{::, HList, HNil, LabelledGeneric, Lazy, Witness}
 
-  implicit val readsHNil: Reads[HNil] = Reads { json =>
-    JsSuccess(HNil)
+  trait HReads[T] {
+    def reads: Reads[T]
   }
 
-  implicit def readHCons[K <: Symbol, H, T <: HList](
-    implicit
-    witness: Witness.Aux[K],
-    readsH: Reads[H],
-    readsT: Reads[T]
-  ): Reads[FieldType[K, H] :: T] = {
-    val name = witness.value.name
-    val readHead = (__ \ name).read[H](readsH)
-    (readHead and readsT)( (a, b) => (name ->> a :: b).asInstanceOf[FieldType[K, H] :: T])
+  trait HReadsLowerPriority {
+
+    implicit def readsGeneric[Repr <: HList, A](
+      implicit
+      gen: LabelledGeneric.Aux[A, Repr],
+      readsRepr: Lazy[HReads[Repr]]
+    ): HReads[A] = new HReads[A] {
+      override def reads: Reads[A] = Reads[A] { json =>
+        readsRepr.value.reads.reads(json).map(gen.from)
+      }
+    }
+
   }
 
-  implicit def readsGeneric[Repr, A](implicit
-                                     gen: LabelledGeneric.Aux[A, Repr],
-                                     readsRepr: Lazy[Reads[Repr]]): Reads[A] =
-    Reads(json => readsRepr.value.reads(json).map(gen.from))
+  object HReads extends HReadsLowerPriority {
+
+    implicit def readsHNil: HReads[HNil] = new HReads[HNil] {
+      override def reads = Reads { json =>
+        JsSuccess(HNil)
+      }
+    }
 
 
-  def hReads[A](implicit readsInst: Reads[A]): Reads[A] = readsInst
+    implicit def readHCons[K <: Symbol, H, T <: HList](
+      implicit
+      witness: Witness.Aux[K],
+      readsH: Reads[H],
+      readsT: Lazy[HReads[T]]
+    ): HReads[FieldType[K, H] :: T] = new HReads[FieldType[K, H] :: T] {
+      override def reads: Reads[FieldType[K, H] :: T] = {
+        val name = witness.value.name
+        val readHead = (__ \ name).read[H](readsH)
+        (readHead and readsT.value.reads) ((a, b) => (name ->> a :: b).asInstanceOf[FieldType[K, H] :: T])
+      }
+    }
+
+  }
+
+  def hReads[A](implicit readsInst: HReads[A]): Reads[A] = readsInst.reads
 
 }

@@ -23,16 +23,16 @@ class RulesSpec extends WordSpec with MustMatchers with OptionValues {
       import syntax.singleton._
       import playjson.rules._
 
-      val monMojoReads: Reads[Viking] = jsonRead[Viking].withRules(
+      implicit val reads: Reads[Viking] = jsonRead[Viking].withRules(
         'weight ->> read(min(0) keepAnd max(150))
       )
 
-      val jsResult: JsResult[Viking] = monMojoReads.reads(Json.obj(
+      val jsResult: JsResult[Viking] = Json.obj(
         "name" -> "Ragnar",
         "surname" -> "Lothbrok",
         "village" -> Seq(Json.obj("name" -> "Kattegat")),
         "weight" -> 90
-      ))
+      ).validate[Viking]
 
       println(s"!!! ${
         jsResult
@@ -49,18 +49,18 @@ class RulesSpec extends WordSpec with MustMatchers with OptionValues {
       import syntax.singleton._
       import playjson.rules._
 
-      val monMojoReads: Reads[Viking] = jsonRead[Viking].withRules(
+      implicit val reads: Reads[Viking] = jsonRead[Viking].withRules(
           'weight ->> read(min(0) keepAnd max(150)) and
           'name ->> read(pattern(".*".r)) and
           'surname ->> read(pattern(".*".r))
       )
 
-      val jsResult: JsResult[Viking] = monMojoReads.reads(Json.obj(
+      val jsResult: JsResult[Viking] = Json.obj(
         "name" -> "Ragnar",
         "surname" -> "Lothbrok",
         "village" -> Seq(Json.obj("name" -> "Kattegat")),
         "weight" -> 2
-      ))
+      ).validate[Viking]
 
       println(s"!!! $jsResult")
 
@@ -77,23 +77,23 @@ class RulesSpec extends WordSpec with MustMatchers with OptionValues {
       import playjson.rules._
       import playjson.transformation._
 
-      val reads: Reads[Viking] =
+      implicit val reads: Reads[Viking] =
         transform(
-            ((__ \ 'theName) to (__ \ 'name)) and
-            ((__ \ 'theSurname) to (__ \ 'surname)) and
-            ((__ \ 'theVillage) to (__ \ 'village))
+          ((__ \ 'theName) to (__ \ 'name)) and
+          ((__ \ 'theSurname) to (__ \ 'surname)) and
+          ((__ \ 'theVillage) to (__ \ 'village))
         ) andThen jsonRead[Viking].withRules(
           'weight ->> read(min(0) keepAnd max(150)) and
           'name ->> read(pattern(".*".r)) and
           'surname ->> read(pattern(".*".r))
         )
 
-      val jsResult: JsResult[Viking] = reads.reads(Json.obj(
+      val jsResult: JsResult[Viking] = Json.obj(
         "theName" -> "Ragnar",
         "theSurname" -> "Lothbrok",
         "theVillage" -> Seq(Json.obj("name" -> "Kattegat")),
         "weight" -> 2
-      ))
+      ).validate[Viking]
 
       println(s"!!! $jsResult")
 
@@ -107,19 +107,19 @@ class RulesSpec extends WordSpec with MustMatchers with OptionValues {
       import shapeless._
       import playjson.transformation._
 
-      val monMojoReads: Reads[Viking] =
+      implicit val reads: Reads[Viking] =
         transform(
           ((__ \ 'theName) to (__ \ 'name)) and
-            ((__ \ 'theSurname) to (__ \ 'surname)) and
-            ((__ \ 'theVillage) to (__ \ 'village))
+          ((__ \ 'theSurname) to (__ \ 'surname)) and
+          ((__ \ 'theVillage) to (__ \ 'village))
         ) andThen Json.reads[Viking]
 
-      val jsResult: JsResult[Viking] = monMojoReads.reads(Json.obj(
+      val jsResult: JsResult[Viking] = Json.obj(
         "theName" -> "Ragnar",
         "theSurname" -> "Lothbrok",
         "theVillage" -> Seq(Json.obj("name" -> "Kattegat")),
         "weight" -> 2
-      ))
+      ).validate[Viking]
 
       println(s"!!! $jsResult")
 
@@ -132,14 +132,14 @@ class RulesSpec extends WordSpec with MustMatchers with OptionValues {
       import play.api.libs.json._
       import playjson.reads._
 
-      val monMojoReads: Reads[Viking] = hReads[Viking]
+      implicit val reads: Reads[Viking] = hReads[Viking]
 
-      val jsResult: JsResult[Viking] = monMojoReads.reads(Json.obj(
+      val jsResult: JsResult[Viking] = Json.obj(
         "name" -> "Ragnar",
         "surname" -> "Lothbrok",
         "village" -> Seq(Json.obj("name" -> "Kattegat")),
         "weight" -> 2
-      ))
+      ).validate[Viking]
 
       println(s"!!! $jsResult")
 
@@ -154,19 +154,19 @@ class RulesSpec extends WordSpec with MustMatchers with OptionValues {
       import playjson.transformation._
       import playjson.reads._
 
-      val monMojoReads: Reads[Viking] =
+      implicit val reads: Reads[Viking] =
         transform(
           ((__ \ 'theName) to (__ \ 'name)) and
-            ((__ \ 'theSurname) to (__ \ 'surname)) and
-            ((__ \ 'theVillage) to (__ \ 'village))
+          ((__ \ 'theSurname) to (__ \ 'surname)) and
+          ((__ \ 'theVillage) to (__ \ 'village))
         ) andThen hReads[Viking]
 
-      val jsResult: JsResult[Viking] = monMojoReads.reads(Json.obj(
+      val jsResult: JsResult[Viking] = Json.obj(
         "theName" -> "Ragnar",
         "theSurname" -> "Lothbrok",
         "theVillage" -> Seq(Json.obj("name" -> "Kattegat")),
         "weight" -> 2
-      ))
+      ).validate[Viking]
 
       println(s"!!! $jsResult")
 
