@@ -1,9 +1,9 @@
-package playjson
 
-object all extends TransformationsOps with RulesOps with ReadsOps
-object rules extends RulesOps
-object reads extends ReadsOps
-object transformation extends TransformationsOps
+package object playjson extends TransformationsOps with RulesOps with ReadsOps {
+  object rules extends RulesOps
+  object reads extends ReadsOps
+  object transformation extends TransformationsOps
+}
 
 trait TransformationsOps {
 
