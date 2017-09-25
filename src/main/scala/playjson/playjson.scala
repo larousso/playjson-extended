@@ -1,6 +1,13 @@
-package playjson
 
-object transformation {
+package object playjson extends TransformationsOps with RulesOps with ReadsOps {
+  object rules extends RulesOps
+  object reads extends ReadsOps
+  object transformation extends TransformationsOps
+}
+
+
+
+trait TransformationsOps {
 
   import play.api.libs.functional._
   import play.api.libs.functional.syntax._
@@ -42,7 +49,7 @@ object transformation {
 }
 
 
-object rules {
+trait RulesOps {
 
   import play.api.libs.functional.syntax._
   import play.api.libs.json._
@@ -171,7 +178,7 @@ object rules {
 
 }
 
-object reads {
+trait ReadsOps {
   import play.api.libs.functional.syntax._
   import play.api.libs.json._
   import shapeless.labelled._

@@ -1,4 +1,5 @@
-package playjson
+package specs
+
 import org.scalatest._
 import play.api.libs.json.Json
 
@@ -74,8 +75,7 @@ class RulesSpec extends WordSpec with MustMatchers with OptionValues {
       import play.api.libs.functional.syntax._
       import shapeless._
       import syntax.singleton._
-      import playjson.rules._
-      import playjson.transformation._
+      import playjson.all._
 
       implicit val reads: Reads[Viking] =
         transform(
@@ -104,7 +104,6 @@ class RulesSpec extends WordSpec with MustMatchers with OptionValues {
     "transformation with native reads" in {
 
       import play.api.libs.json._
-      import shapeless._
       import playjson.transformation._
 
       implicit val reads: Reads[Viking] =
@@ -150,9 +149,7 @@ class RulesSpec extends WordSpec with MustMatchers with OptionValues {
     "transformation and hReads" in {
 
       import play.api.libs.json._
-      import shapeless._
-      import playjson.transformation._
-      import playjson.reads._
+      import playjson.all._
 
       implicit val reads: Reads[Viking] =
         transform(
