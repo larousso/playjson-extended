@@ -158,6 +158,5 @@ Or use reads generated from shapeless LabelledGeneric :
 # Release 
 
 ``` 
-sbt 
-> + publish 
+sbt "release with-defaults" 
 ```
