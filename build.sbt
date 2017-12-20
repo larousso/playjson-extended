@@ -1,4 +1,5 @@
-import com.typesafe.sbt.SbtGit.GitKeys._
+import sbtrelease._
+import sbtrelease.ReleaseStateTransformations._
 
 val currentVersion = "0.0.2-SNAPSHOT"
 
@@ -65,3 +66,16 @@ lazy val publishSettings =
       pomIncludeRepository := { _ => false }
       //resolvers += Resolver.url("Ivy resolver", url("http://dl.bintray.com/adelegue/maven"))(Resolver.mavenStylePatterns),
     )
+
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  runTest,
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  releaseStepCommandAndRemaining("publish"),
+  setNextVersion,
+  commitNextVersion,
+  pushChanges)
