@@ -2,17 +2,19 @@
 
 [travis]:                https://travis-ci.org/larousso/playjson-extended
 [travis-badge]:          https://travis-ci.org/larousso/playjson-extended.svg?branch=master
+[bintray]:               https://bintray.com/larousso/maven/playjson-extended
+[bintray-badge]:         https://img.shields.io/bintray/v/larousso/maven/playjson-extended.svg?maxAge=2592000
 
-[![travis-badge][]][travis]
+[![travis-badge][]][travis] [![bintray-badge][]][bintray]
 
 ## Usage 
 
 
 ```scala 
 
-resolvers += "playjson-repo" at "https://raw.githubusercontent.com/larousso/playjson-extended/master/repository/releases/"
+resolvers += Resolver.bintrayRepo("larousso", "maven")
 
-libraryDependencies += "com.adelegue" %% "playjson-extended" % "0.0.1"
+libraryDependencies += "com.adelegue" %% "playjson-extended" % "X.X.X"
 
 ``` 
 

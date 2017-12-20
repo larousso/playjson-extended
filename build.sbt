@@ -18,49 +18,44 @@ lazy val root = (project in file("."))
 
 lazy val githubRepo = "larousso/playjson-extended"
 
-lazy val publishCommonsSettings = Seq(
-  homepage := Some(url(s"https://github.com/$githubRepo")),
-  startYear := Some(2017),
-  licenses := Seq(("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))),
-  scmInfo := Some(
-    ScmInfo(
-      url(s"https://github.com/$githubRepo"),
-      s"scm:git:https://github.com/$githubRepo.git",
-      Some(s"scm:git:git@github.com:$githubRepo.git")
-    )
-  ),
-  publishMavenStyle := true,
-  publishArtifact in Test := false,
-  bintrayVcsUrl := Some(s"scm:git:git@github.com:$githubRepo.git"),
-  pomExtra := (
-    <url>http://adelegue.org</url>
-      <licenses>
-        <license>
-          <name>Apache 2</name>
-          <url>http://www.apache.org/licenses/LICENSE-2.0</url>
-          <distribution>repo</distribution>
-        </license>
-      </licenses>
-      <scm>
-        <url>https://github.com/larousso/playjson-extended</url>
-        <connection>https://github.com/larousso/playjson-extended</connection>
-      </scm>
-      <developers>
-        <developer>
-          <id>alexandre.delegue</id>
-          <name>Alexandre Delègue</name>
-          <url>https://github.com/larousso</url>
-        </developer>
-      </developers>
-    )
-)
-
 lazy val publishSettings =
-    publishCommonsSettings ++ Seq(
+    Seq(
+      homepage := Some(url(s"https://github.com/$githubRepo")),
+      startYear := Some(2017),
+      licenses := Seq(("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))),
+      scmInfo := Some(
+        ScmInfo(
+          url(s"https://github.com/$githubRepo"),
+          s"scm:git:https://github.com/$githubRepo.git",
+          Some(s"scm:git:git@github.com:$githubRepo.git")
+        )
+      ),
+      publishMavenStyle := true,
+      publishArtifact in Test := false,
+      bintrayVcsUrl := Some(s"scm:git:git@github.com:$githubRepo.git"),
       bintrayCredentialsFile := file(".credentials"),
-      //bintrayOrganization := Some("com.adelegue"),
-      pomIncludeRepository := { _ => false }
-      //resolvers += Resolver.url("Ivy resolver", url("http://dl.bintray.com/adelegue/maven"))(Resolver.mavenStylePatterns),
+      pomIncludeRepository := { _ => false },
+      pomExtra := (
+        <url>http://adelegue.org</url>
+          <licenses>
+            <license>
+              <name>Apache 2</name>
+              <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+              <distribution>repo</distribution>
+            </license>
+          </licenses>
+          <scm>
+            <url>https://github.com/larousso/playjson-extended</url>
+            <connection>https://github.com/larousso/playjson-extended</connection>
+          </scm>
+          <developers>
+            <developer>
+              <id>alexandre.delegue</id>
+              <name>Alexandre Delègue</name>
+              <url>https://github.com/larousso</url>
+            </developer>
+          </developers>
+        )
     )
 
 releaseProcess := Seq[ReleaseStep](
