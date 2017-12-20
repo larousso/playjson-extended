@@ -9,6 +9,7 @@ lazy val root = (project in file("."))
     organization := "com.adelegue",
     version := currentVersion,
     resolvers += Resolver.jcenterRepo,
+    releaseCrossBuild := true,
     crossScalaVersions := Seq("2.11.8", scalaVersion.value),
     libraryDependencies ++= Seq(
       "com.typesafe.play" %% "play-json" % "2.6.5",
