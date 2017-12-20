@@ -8,7 +8,6 @@ lazy val root = (project in file("."))
   .settings(
     name := """playjson-extended""",
     organization := "com.adelegue",
-    version := currentVersion,
     resolvers += Resolver.jcenterRepo,
     releaseCrossBuild := true,
     crossScalaVersions := Seq("2.11.8", scalaVersion.value),
