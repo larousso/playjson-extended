@@ -1,5 +1,10 @@
 # Play extension 
 
+[travis]:                https://travis-ci.org/larousso/playjson-extended
+[travis-badge]:          https://travis-ci.org/larousso/playjson-extended.svg?branch=master
+
+[![travis-badge][]][travis]
+
 ## Usage 
 
 
