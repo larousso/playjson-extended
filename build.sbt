@@ -1,7 +1,7 @@
 import sbtrelease._
 import sbtrelease.ReleaseStateTransformations._
 
-val currentVersion = "0.0.2-SNAPSHOT"
+val currentVersion = "0.0.3"
 
 lazy val root = (project in file("."))
   .enablePlugins(BuildInfoPlugin, GitVersioning, GitBranchPrompt)
