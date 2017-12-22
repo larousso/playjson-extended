@@ -31,7 +31,7 @@ lazy val publishSettings =
         )
       ),
       developers := List(
-        Developer("alexandre.delegue", "Alexandre Delègue", "", url(s"https://github.com/$githubRepo"))
+        Developer("alexandre.delegue", "Alexandre Delègue", "", url(s"https://github.com/larousso"))
       ),
       publishMavenStyle := true,
       publishArtifact in Test := false,
