@@ -1,7 +1,14 @@
 import sbtrelease.ReleaseStateTransformations._
 
+val disabledPlugins = if (sys.env.get("TRAVIS_TAG").filterNot(_.isEmpty).isDefined) {
+  Seq()
+} else {
+  Seq(BintrayPlugin)
+}
+
 lazy val root = (project in file("."))
-  .enablePlugins(BuildInfoPlugin, GitVersioning, GitBranchPrompt)
+  .enablePlugins(GitVersioning, GitBranchPrompt)
+  .disablePlugins(disabledPlugins:_*)
   .settings(
     name := """playjson-extended""",
     organization := "com.adelegue",
@@ -18,27 +25,46 @@ lazy val root = (project in file("."))
 
 lazy val githubRepo = "larousso/playjson-extended"
 
-lazy val publishSettings =
-    Seq(
-      homepage := Some(url(s"https://github.com/$githubRepo")),
-      startYear := Some(2017),
-      licenses := Seq(("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))),
-      scmInfo := Some(
-        ScmInfo(
-          url(s"https://github.com/$githubRepo"),
-          s"scm:git:https://github.com/$githubRepo.git",
-          Some(s"scm:git:git@github.com:$githubRepo.git")
-        )
-      ),
-      developers := List(
-        Developer("alexandre.delegue", "Alexandre Delègue", "", url(s"https://github.com/larousso"))
-      ),
-      publishMavenStyle := true,
-      publishArtifact in Test := false,
-      bintrayVcsUrl := Some(s"scm:git:git@github.com:$githubRepo.git"),
-      bintrayCredentialsFile := file(".credentials"),
-      pomIncludeRepository := { _ => false }
+lazy val publishCommonsSettings = Seq(
+  homepage := Some(url(s"https://github.com/$githubRepo")),
+  startYear := Some(2017),
+  licenses := Seq(("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))),
+  scmInfo := Some(
+    ScmInfo(
+      url(s"https://github.com/$githubRepo"),
+      s"scm:git:https://github.com/$githubRepo.git",
+      Some(s"scm:git:git@github.com:$githubRepo.git")
     )
+  ),
+  developers := List(
+    Developer("alexandre.delegue", "Alexandre Delègue", "", url(s"https://github.com/larousso"))
+  ),
+  publishMavenStyle := true,
+  publishArtifact in Test := false,
+  bintrayVcsUrl := Some(s"scm:git:git@github.com:$githubRepo.git")
+)
+
+lazy val publishSettings =
+  if (sys.env.get("TRAVIS_TAG").filterNot(_.isEmpty).isDefined) {
+    publishCommonsSettings ++ Seq(
+      bintrayCredentialsFile := file(".credentials"),
+      pomIncludeRepository := { _ =>
+        false
+      }
+    )
+  } else {
+    publishCommonsSettings ++ Seq(
+      publishTo := Some(
+        "Artifactory Realm" at "http://oss.jfrog.org/artifactory/oss-snapshot-local"
+      ),
+      bintrayReleaseOnPublish := false,
+      credentials := List(
+        Credentials("Artifactory Realm", "oss.jfrog.org", sys.env.getOrElse("BINTRAY_USER", ""), sys.env.getOrElse("BINTRAY_PASSWORD", ""))
+      )
+    )
+  }
+
+
 
 releaseProcess := Seq[ReleaseStep](
   checkSnapshotDependencies,

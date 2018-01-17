@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-if [ -z "$TRAVIS_TAG" ];
+
+if test "$TRAVIS_PULL_REQUEST" = "false"
 then
-  sbt ++$TRAVIS_SCALA_VERSION ';test'
+    sbt ++$TRAVIS_SCALA_VERSION ";test;publish"
 else
-  sbt ++$TRAVIS_SCALA_VERSION ";test;publish"
+    sbt ++$TRAVIS_SCALA_VERSION ";test"
 fi
