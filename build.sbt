@@ -13,12 +13,12 @@ lazy val root = (project in file("."))
     name := """playjson-extended""",
     organization := "com.adelegue",
     resolvers += Resolver.jcenterRepo,
+    version := "2.12.8",
     releaseCrossBuild := true,
-    crossScalaVersions := Seq("2.11.8", scalaVersion.value),
     libraryDependencies ++= Seq(
-      "com.typesafe.play" %% "play-json" % "2.6.5",
-      "com.chuusai"              %% "shapeless"           % "2.3.2",
-      "org.scalatest" %% "scalatest" % "3.0.4" % Test
+      "com.typesafe.play" %% "play-json" % "2.7.1",
+      "com.chuusai"       %% "shapeless" % "2.3.3",
+      "org.scalatest"     %% "scalatest" % "3.0.4" % Test
     )
   )
   .settings(publishSettings:_*)
