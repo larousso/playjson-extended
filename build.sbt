@@ -13,7 +13,7 @@ lazy val root = (project in file("."))
     name := """playjson-extended""",
     organization := "com.adelegue",
     resolvers += Resolver.jcenterRepo,
-    version := "2.12.8",
+    scalaVersion := "2.12.8",
     releaseCrossBuild := true,
     libraryDependencies ++= Seq(
       "com.typesafe.play" %% "play-json" % "2.7.1",
